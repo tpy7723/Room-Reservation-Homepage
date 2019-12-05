@@ -1,0 +1,201 @@
+create database TEST
+use TEST
+
+CREATE TABLE 고객
+(
+	ID                   VARCHAR(15) NOT NULL,
+	이름                 VARCHAR(18) NOT NULL,
+	전화번호             VARCHAR(18) NOT NULL,
+	비밀번호             VARCHAR(15) NOT NULL,
+	서비스이용횟수       TINYINT NOT NULL
+);
+
+ALTER TABLE 고객
+ADD CONSTRAINT XPK고객 PRIMARY KEY (ID);
+
+CREATE TABLE 답변댓글
+(
+	내용                 TEXT NOT NULL,
+	작성시간             DATETIME NOT NULL,
+	질문번호             VARCHAR(18) NOT NULL,
+	직원번호             VARCHAR(15) NOT NULL
+);
+
+ALTER TABLE 답변댓글
+ADD CONSTRAINT XPK답변댓글 PRIMARY KEY (질문번호);
+
+CREATE TABLE 부품
+(
+	모델번호             VARCHAR(18) NOT NULL,
+	부품명               VARCHAR(18) NOT NULL,
+	단가                 VARCHAR(18) NOT NULL
+);
+
+ALTER TABLE 부품
+ADD CONSTRAINT XPK부품 PRIMARY KEY (모델번호);
+
+CREATE TABLE 부품_수급
+(
+	모델번호             VARCHAR(18) NOT NULL,
+	업체번호             VARCHAR(18) NOT NULL
+);
+
+ALTER TABLE 부품_수급
+ADD CONSTRAINT XPK부품_수급 PRIMARY KEY (모델번호,업체번호);
+
+CREATE TABLE 부품업체
+(
+	업체번호             VARCHAR(18) NOT NULL,
+	업체명               VARCHAR(18) NOT NULL,
+	대표자명             VARCHAR(18) NULL
+);
+
+ALTER TABLE 부품업체
+ADD CONSTRAINT XPK부품업체 PRIMARY KEY (업체번호);
+
+CREATE TABLE 사용_부품
+(
+	접수번호             VARCHAR(15) NOT NULL,
+	모델번호             VARCHAR(18) NOT NULL,
+	시리얼번호           CHAR(18) NOT NULL
+);
+
+ALTER TABLE 사용_부품
+ADD CONSTRAINT XPK사용_부품 PRIMARY KEY (접수번호,모델번호,시리얼번호);
+
+CREATE TABLE 수리기록
+(
+	접수번호             VARCHAR(15) NOT NULL,
+	접수시간             DATETIME NOT NULL,
+	문제점               TEXT NOT NULL,
+	수리상태             TINYINT(2) NOT NULL,
+	수리시작날짜         DATE NULL,
+	수리완료날짜         DATE NULL,
+	직원번호             VARCHAR(15) NOT NULL,
+	ID                   VARCHAR(15) NOT NULL,
+	차량번호             VARCHAR(18) NOT NULL,
+	금액                 INTEGER NOT NULL
+);
+
+ALTER TABLE 수리기록
+ADD CONSTRAINT XPK수리기록 PRIMARY KEY (접수번호);
+
+CREATE TABLE 예약
+(
+	예약번호             VARCHAR(10) NOT NULL,
+	희망날짜             DATE NOT NULL,
+	픽업장소             TEXT NULL,
+	ID                   VARCHAR(15) NOT NULL,
+	예약승인             TINYINT(1) NOT NULL
+);
+
+ALTER TABLE 예약
+ADD CONSTRAINT XPK예약 PRIMARY KEY (예약번호);
+
+CREATE TABLE 직원
+(
+	직원번호             VARCHAR(15) NOT NULL,
+	사수_번호            VARCHAR(15) NULL,
+	이름                 VARCHAR(18) NOT NULL,
+	전화번호             VARCHAR(18) NOT NULL,
+	근무시작일           DATE NOT NULL,
+	비밀번호             VARCHAR(18) NOT NULL
+);
+
+ALTER TABLE 직원
+ADD CONSTRAINT XPK직원 PRIMARY KEY (직원번호);
+
+CREATE TABLE 질문게시판
+(
+	질문번호             VARCHAR(18) NOT NULL,
+	내용                 TEXT NOT NULL,
+	작성시간             DATETIME NOT NULL,
+	ID                   VARCHAR(15) NOT NULL
+);
+
+ALTER TABLE 질문게시판
+ADD CONSTRAINT XPK질문게시판 PRIMARY KEY (질문번호);
+
+CREATE TABLE 차량
+(
+	차량번호             VARCHAR(18) NOT NULL,
+	모델                 VARCHAR(18) NOT NULL,
+	연식                 YEAR NOT NULL,
+	ID                   VARCHAR(15) NOT NULL
+);
+
+ALTER TABLE 차량
+ADD CONSTRAINT XPK차량 PRIMARY KEY (차량번호);
+
+CREATE TABLE 후기
+(
+	내용                 TEXT NULL,
+	작성시간             DATETIME NOT NULL,
+	접수번호             VARCHAR(15) NOT NULL,
+	ID                   VARCHAR(15) NOT NULL
+);
+
+ALTER TABLE 후기
+ADD CONSTRAINT XPK후기 PRIMARY KEY (접수번호);
+
+alter table 고객 convert to charset utf8;
+alter table 예약 convert to charset utf8;
+alter table 차량 convert to charset utf8;
+alter table 수리기록 convert to charset utf8;
+alter table 사용_부품 convert to charset utf8;
+alter table 부품 convert to charset utf8;
+alter table 부품_수급 convert to charset utf8;
+alter table 부품업체 convert to charset utf8;
+alter table 답변댓글 convert to charset utf8;
+alter table 질문게시판 convert to charset utf8;
+alter table 직원 convert to charset utf8;
+alter table 후기 convert to charset utf8;
+
+
+ALTER TABLE 답변댓글
+ADD CONSTRAINT 댓글이_달리다 FOREIGN KEY (질문번호) REFERENCES 질문게시판 (질문번호) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE 답변댓글
+ADD CONSTRAINT 답변 FOREIGN KEY (직원번호) REFERENCES 직원 (직원번호) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE 부품_수급
+ADD CONSTRAINT 수요 FOREIGN KEY (모델번호) REFERENCES 부품 (모델번호) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE 부품_수급
+ADD CONSTRAINT 공급 FOREIGN KEY (업체번호) REFERENCES 부품업체 (업체번호) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE 사용_부품
+ADD CONSTRAINT 기록 FOREIGN KEY (접수번호) REFERENCES 수리기록 (접수번호) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE 사용_부품
+ADD CONSTRAINT 사용 FOREIGN KEY (모델번호) REFERENCES 부품 (모델번호) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE 수리기록
+ADD CONSTRAINT 담당 FOREIGN KEY (직원번호) REFERENCES 직원 (직원번호) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE 수리기록
+ADD CONSTRAINT 접수 FOREIGN KEY (ID) REFERENCES 고객 (ID) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE 수리기록
+ADD CONSTRAINT 등록 FOREIGN KEY (차량번호) REFERENCES 차량 (차량번호) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE 예약
+ADD CONSTRAINT 예약신청 FOREIGN KEY (ID) REFERENCES 고객 (ID) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE 직원
+ADD CONSTRAINT 인턴쉽 FOREIGN KEY (사수_번호) REFERENCES 직원 (직원번호) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE 질문게시판
+ADD CONSTRAINT 게시 FOREIGN KEY (ID) REFERENCES 고객 (ID) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE 차량
+ADD CONSTRAINT 소유 FOREIGN KEY (ID) REFERENCES 고객 (ID) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE 후기
+ADD CONSTRAINT 관련 FOREIGN KEY (접수번호) REFERENCES 수리기록 (접수번호) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE 후기
+ADD CONSTRAINT 작성 FOREIGN KEY (ID) REFERENCES 고객 (ID) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+SET FOREIGN_KEY_CHECKS = 0;

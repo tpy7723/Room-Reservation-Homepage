@@ -1,0 +1,68 @@
+CREATE TABLE 고객
+(
+	ID                   VARCHAR(30) NOT NULL,
+	이름                 VARCHAR(30) NOT NULL,
+	비밀번호             VARCHAR(30) NOT NULL,
+	이메일       VARCHAR(30) NOT NULL,
+	권한 TINYINT(1) NOT NULL DEFAULT(0)
+);
+
+ALTER TABLE 고객
+ADD CONSTRAINT XPK고객 PRIMARY KEY (ID);
+
+CREATE TABLE 예약
+(
+	예약번호             INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	시작시간             DATETIME NOT NULL,
+	끝시간             DATETIME NOT NULL,
+	ID                   VARCHAR(30) NOT NULL,
+	회의제목             VARCHAR(30) NOT NULL,
+	예약승인 TINYINT(1) NOT NULL DEFAULT(0),
+	회의실이름 VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE 회의실
+(
+	회의실이름              VARCHAR(30) NOT NULL,
+	주말예약             TINYINT(1) NOT NULL
+);
+
+ALTER TABLE 회의실
+ADD CONSTRAINT XPK회의실 PRIMARY KEY (회의실이름);
+
+CREATE TABLE 참석
+(
+	예약번호              INT NOT NULL,
+	ID             VARCHAR(30) NOT NULL
+);
+
+ALTER TABLE 참석
+ADD CONSTRAINT XPK참석 PRIMARY KEY (예약번호, ID);
+
+
+alter table 고객 convert to charset utf8;
+alter table 예약 convert to charset utf8;
+alter table 회의실 convert to charset utf8;
+alter table 참석 convert to charset utf8;
+
+ALTER TABLE 예약
+ADD CONSTRAINT 예약신청 FOREIGN KEY (ID) REFERENCES 고객 (ID) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE 예약
+ADD CONSTRAINT 예약회의실신청 FOREIGN KEY (회의실이름) REFERENCES 회의실 (회의실이름) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE 참석
+ADD CONSTRAINT 참석신청 FOREIGN KEY (ID) REFERENCES 고객 (ID) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE 참석
+ADD CONSTRAINT 참석예약신청 FOREIGN KEY (예약번호) REFERENCES 예약 (예약번호) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+
+
+
+
+
+
+ALTER TABLE 예약 MODIFY 예약번호 INT NOT NULL AUTO_INCREMENT;
+ALTER TABLE 예약 MODIFY 예약승인 TINYINT(1) NOT NULL DEFAULT(0)
